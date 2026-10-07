@@ -207,7 +207,12 @@ def geocode_location(query: str, *, get: Callable[..., requests.Response] = requ
         raise ValueError("Enter a city, address, or place.")
     response = get("https://nominatim.openstreetmap.org/search",
                    params={"q": query, "format": "jsonv2", "limit": 5, "countrycodes": "ca"},
-                   headers={"User-Agent": "OntarioNowcast/1.0 (research application)"}, timeout=15)
+                   headers={
+                       "User-Agent": (
+                           "OntarioNowcast/1.0 "
+                           "(https://github.com/Wepehe/Rain-Prediction)"
+                       )
+                   }, timeout=15)
     response.raise_for_status()
     results = response.json()
     if not results:

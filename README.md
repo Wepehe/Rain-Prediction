@@ -1,47 +1,70 @@
-# Ontario precipitation nowcasting
+---
+title: Southern Ontario Precipitation Nowcast
+emoji: 🌧️
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
 
-Research code for probabilistic 0–120 minute precipitation nowcasting over Ontario. The central
-hypothesis is that satellite and atmospheric-state information can add skill when rain has not yet
-become visible to radar; the project therefore treats radar advection as a baseline, not the final
-model.
+# Southern Ontario precipitation nowcast
 
-The repository is currently at **Stage 0 / Milestone 1.5**. It provides a small, reproducible pilot
-design, source manifests, event-mining logic, persistence, optical-flow, and optional PySTEPS
-baselines, verification metrics, benchmark metadata, and data-access utilities. Large raw datasets
-are intentionally excluded from Git.
+An experimental live 0–2 hour precipitation-nowcasting application using deterministic PySTEPS and the independently validated Residual U-Net V1.
 
-## Quick start
+## Run the public application locally
 
-Python 3.12 is recommended because meteorological GRIB dependencies do not yet consistently ship
-Python 3.14 wheels.
+With Docker installed:
 
 ```powershell
-uv sync --python 3.12 --extra data --extra baseline --extra viz --extra dev
-uv run pytest
-uv run nowcast-estimate-storage --config configs/data/milestone_1.yaml
-uv run nowcast-run-demo --output-dir artifacts/demo
-uv run nowcast-run-benchmark --config configs/data/milestone_1_5.yaml
+git clone https://github.com/Wepehe/Rain-Prediction.git
+cd Rain-Prediction
+docker build -t ontario-nowcast-v1 .
+docker run --rm -p 7860:7860 --memory=4g ontario-nowcast-v1
 ```
 
-The demo generates a deterministic synthetic storm solely to exercise alignment, event mining,
-baselines, metrics, and plotting. It is not reported as scientific model performance. Real sample
-retrieval is handled separately so network availability never makes the test suite flaky.
+Open `http://localhost:7860`. Search for a Southern Ontario location and select **Generate 2-hour nowcast**. The application downloads current NOAA MRMS radar observations and runs the frozen operational pipeline automatically.
 
-## Data policy
+For a direct Python launch:
 
-- Raw downloads are immutable.
-- Every download is recorded in a JSONL manifest with source URL, retrieval time, byte count, and
-  SHA-256 hash.
-- Missing radar scans remain missing; preprocessing never silently interpolates them.
-- Event-level and chronological splits are required before model training.
-- `data/`, `artifacts/`, and `experiments/` payloads are ignored by Git.
+```powershell
+uv sync --python 3.12 --extra data --extra baseline --extra demo --extra operational --extra dev
+uv run streamlit run app/live_nowcast.py
+```
 
-See [docs/data_sources.md](docs/data_sources.md) and
-[docs/milestone_1_report.md](docs/milestone_1_report.md) for the source audit and first milestone.
-The benchmark construction report is in
-[docs/milestone_1_5_benchmark.md](docs/milestone_1_5_benchmark.md).
+## Hugging Face Spaces
 
-PySTEPS is declared as an optional non-Windows baseline dependency because the current Windows
-Python 3.12 environment needs local C++ build tools to compile it. For the actual PySTEPS comparison,
-use Python 3.11 with conda-forge or install the required Microsoft C++ Build Tools, then rerun
-`nowcast-run-benchmark --include-pysteps`.
+This repository is configured as a Docker Space on port `7860`. Create a public Docker Space, then push or import this repository. The Space requires no secrets. It needs outbound HTTPS access to NOAA MRMS and OpenStreetMap Nominatim; its radar cache is temporary and safe to recreate.
+
+See [the live-app deployment guide](docs/live_nowcast_app.md) for complete instructions and limitations.
+
+## Validated model
+
+The frozen `PySTEPSResidualUNetV1` has 3,060,440 parameters and uses ten six-minute radar frames to produce twenty forecast frames from +6 to +120 minutes. Its operating occurrence threshold is fixed at `0.35`.
+
+On the independent 12-system FINAL event corpus:
+
+| Metric | PySTEPS | Residual V1 |
+|---|---:|---:|
+| F1 | 0.5644 | 0.6810 |
+| FSS18 | 0.7007 | 0.7842 |
+| Brier | 0.2245 | 0.1117 |
+| Rate MAE | 0.5468 | 0.5018 |
+
+F1 improved in 12/12 systems. This was an event-focused evaluation, not continuous climatological validation. Reliable radar-blind initiation was not demonstrated.
+
+## Research repository
+
+The repository also preserves the data-source audits, event-level experiments, verification code, and scientific reports that led to the operational model. Large raw datasets and generated research artifacts are intentionally excluded from Git. The byte-frozen operational checkpoint, normalization, configuration, and model-source identity are included and verified at load time.
+
+Useful references:
+
+- [Cycle-2 Residual V1 report](docs/cycle2_residual_v1.md)
+- [Operational inference](docs/operational_residual_v1.md)
+- [Live application](docs/live_nowcast_app.md)
+- [Project results summary](docs/project_results_summary.md)
+
+## Safety and limitations
+
+This is an experimental research nowcast, not an official weather-warning service. Radar-blind initiation remains difficult, probabilities are not perfectly calibrated, and PySTEPS is an essential input. Use official Environment and Climate Change Canada warnings for safety-critical decisions.

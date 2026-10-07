@@ -62,12 +62,32 @@ Build and run:
 
 ```powershell
 docker build -t ontario-nowcast-v1 .
-docker run --rm -p 8501:8501 --memory=4g ontario-nowcast-v1
+docker run --rm -p 7860:7860 --memory=4g ontario-nowcast-v1
 ```
 
-Open `http://localhost:8501`. The container includes only application source and the frozen operational bundle—not TRAIN, DEV, FINAL, or raw research datasets. It requires outbound HTTPS access to NOAA S3 and Nominatim, plus a writable `/tmp/nowcast-cache`. The health check verifies that the bundle manifest exists and Streamlit’s lightweight health endpoint responds; it does not run inference.
+Open `http://localhost:7860`. The container includes only application source and the frozen operational bundle—not TRAIN, DEV, FINAL, or raw research datasets. It requires outbound HTTPS access to NOAA S3 and Nominatim, plus a writable `/tmp/nowcast-cache`. The health check verifies that the bundle manifest exists and Streamlit’s lightweight health endpoint responds; it does not run inference.
 
 Allow roughly 4 GB RAM and 2 GB container/runtime disk headroom. An uncached CPU request is expected to take tens of seconds; the measured development benchmark was about 16 seconds per tile, dominated by PySTEPS, excluding live download/decode time.
+
+## Free public deployment on Hugging Face Spaces
+
+The root README contains the Docker Space metadata and declares application port `7860`.
+
+1. Create a free account at [Hugging Face](https://huggingface.co/).
+2. Select **New Space**, choose a name such as `southern-ontario-nowcast`, and select **Docker** as the SDK.
+3. Keep the Space public, then import this GitHub repository or push `main` to the Space.
+4. Wait for the Docker build and confirm the Space health status.
+
+No application secret is required. Free hardware may sleep when unused, so cold starts and cache loss are expected. Treat this as a public demonstration rather than an availability-guaranteed warning product.
+
+To push directly after creating an empty Space:
+
+```powershell
+git remote add space https://huggingface.co/spaces/YOUR_USER/southern-ontario-nowcast
+git push space main
+```
+
+Hugging Face may request an access token for Git authentication. Store it in the operating system credential manager; never add it to this repository.
 
 ## Testing
 
