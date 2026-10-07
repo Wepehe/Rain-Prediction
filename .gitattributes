@@ -1,5 +1,4 @@
-# Preserve byte-frozen model artifacts and binary regression fixtures exactly.
-artifacts/operational/residual_v1/* -text
+# Preserve binary regression fixtures exactly.
 *.pt -text
 *.npz -text
 *.png -text
@@ -11,3 +10,6 @@ artifacts/operational/residual_v1/* -text
 *.yml text eol=lf
 *.json text eol=lf
 *.md text eol=lf
+
+# This final, more-specific rule preserves every byte of the hash-verified bundle.
+artifacts/operational/residual_v1/* -text
