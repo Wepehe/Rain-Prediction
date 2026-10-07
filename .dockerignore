@@ -1,0 +1,14 @@
+.git
+.venv
+data
+tests
+docs
+notebooks
+experiments
+artifacts/**
+!artifacts/operational/
+!artifacts/operational/residual_v1/
+!artifacts/operational/residual_v1/**
+__pycache__
+*.pyc
+*.log

@@ -1,0 +1,13 @@
+# Preserve byte-frozen model artifacts and binary regression fixtures exactly.
+artifacts/operational/residual_v1/* -text
+*.pt -text
+*.npz -text
+*.png -text
+
+# Keep repository source/configuration line endings reproducible across platforms.
+*.py text eol=lf
+*.toml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
