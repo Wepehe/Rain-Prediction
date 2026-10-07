@@ -1,0 +1,60 @@
+version: 1
+projection: EPSG:3978
+experiment: cycle2_pysteps_residual_unet_v1
+scientific_boundary: learned correction of radar-observed evolution; not a radar-blind initiation model
+data:
+  split_manifest: artifacts/cycle2/data/frozen_system_split.csv
+  rows_manifest: artifacts/cycle2/data/train_dev_rows.csv
+  legacy_policy: training_only
+  cadence_minutes: 6
+  history_frames: 10
+  target_frames: 20
+  tile_pixels: 128
+  resolution_km: 2
+  rate_transform: log1p
+  train_only_normalization: true
+  hard_negative_batch_fraction: [0.20, 0.30]
+baseline:
+  name: deterministic_lucas_kanade_pysteps
+  configuration_policy: reproduce_frozen_stage13_reference
+model:
+  architecture: PySTEPSResidualUNetV1
+  inputs: [radar_history_10, pysteps_future_20, lucas_kanade_u, lucas_kanade_v, radar_validity_10]
+  widths: [40, 80, 160, 320]
+  occurrence_threshold_mm_hr: 0.1
+  residual_head_zero_initialized: true
+loss:
+  occurrence: {type: binary_focal, gamma: 2.0, positive_alpha: 0.25, weight: 1.0}
+  rate: {type: huber_log1p_observed_wet, delta: 1.0, weight: 0.5, all_pixel_weight: 0.05}
+  spatial: {type: pooled_soft_dice, neighborhood_km: 18, weight: 0.25}
+  residual: {type: l1, weight: 0.05}
+training:
+  batch_size: 4
+  batches_per_epoch: 571
+  sampler_seed: 2718
+  optimizer: AdamW
+  learning_rate: 0.0003
+  weight_decay: 0.0001
+  scheduler: cosine
+  maximum_epochs: 50
+  early_stopping_patience: 8
+  gradient_clip_norm: 1.0
+  mixed_precision_when_available: true
+  checkpoint_occurrence_probability_threshold: 0.50
+  checkpoint_score: event_macro_F1 + 0.5*event_macro_FSS18 - 0.002*onset_MAE_minutes
+threshold:
+  grid: [0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90]
+  selection: maximize_dev_event_macro_F1
+  constraints: {hard_negative_wet_area_increase_max: 0.01, hard_negative_false_initiation_max: 0.40}
+  tie_break: [higher_FSS18, lower_FAR, lower_onset_MAE, higher_threshold]
+promotion:
+  event_macro_F1_gain_min: 0.01
+  FSS18_must_not_decrease: true
+  onset_MAE_tolerance_minutes: 3
+  systems_noninferior_min: 7
+  systems_strictly_better_min: 5
+  system_noninferiority_margin_F1: 0.005
+  hard_negative_wet_area_increase_max: 0.01
+  hard_negative_false_initiation_max: 0.40
+  Brier_degradation_max: 0.005
+final_policy: sealed; inaccessible to training and development evaluation commands
