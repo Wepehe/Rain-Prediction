@@ -1,0 +1,58 @@
+version: 1
+name: stage_4d_d1_radar_dynamics
+stage: stage_4d
+scientific_question: Does issue-time-safe atmospheric forcing improve precipitation initiation beyond A+ radar-only?
+
+frozen_controls:
+  radar_model: artifacts/stage_4b/a_plus_radar/model_best.pt
+  radar_probability_threshold: 0.35
+  goes_model: artifacts/stage_4b/b2_c13_cooling/model_best.pt
+  goes_probability_threshold: 0.20
+  c1_checkpoint: artifacts/stage_4c/c1/model_best.pt
+  c1_status: DEV_NULL_THERMODYNAMIC_INFORMATION_NOT_USED
+
+data:
+  development_splits: [train, dev, stage4_dev_repair]
+  forbidden_splits: [fresh_holdout, stage4c_final_holdout]
+  contexts_minutes: [0, 60, 120]
+  availability_lag_minutes: 60
+  native_variables: [UGRD_10m, VGRD_10m, UGRD_850hPa, VGRD_850hPa, UGRD_500hPa, VGRD_500hPa, VVEL_700hPa]
+  model_variables: [UGRD_10m, VGRD_10m, UGRD_850hPa, VGRD_850hPa, VVEL_700hPa, CONVERGENCE_850hPa, VORTICITY_850hPa, SHEAR_U_850_500hPa, SHEAR_V_850_500hPa, SHEAR_MAG_850_500hPa]
+  excluded_variables: [TMP_2m, DPT_2m, CAPE_surface, CIN_surface, PWAT_column]
+
+derived_fields:
+  coordinate_system: EPSG:3978 metres
+  convergence: "-(du/dx + dv/dy), from 850 hPa wind, s-1"
+  relative_vorticity: "dv/dx - du/dy, from 850 hPa wind, s-1"
+  shear: "500 hPa wind minus 850 hPa wind; vector components and magnitude, m s-1"
+  derivative_spacing: projection-coordinate gradients on the 2 km radar grid
+
+model:
+  architecture: a_plus_radar_with_modest_dynamics_encoder_and_latent_residual_fusion
+  radar_pathway: unchanged_A_plus
+  decoder_and_heads: unchanged_A_plus
+  occurrence_thresholds_mm_hr: [0.1, 1.0, 2.5, 5.0]
+
+loss:
+  occurrence_weight: 1.0
+  intensity_weight: 0.25
+  class_weights_from_train_only: true
+
+training:
+  batch_size: 4
+  torch_num_threads: 12
+  learning_rate: 0.0003
+  max_epochs: 30
+  early_stopping_patience: 6
+  progress_every_batches: 4
+
+promotion_rule:
+  probability_threshold_grid: {start: 0.05, stop: 0.95, step: 0.05}
+  hard_negative_wet_area_fraction_max: 0.01
+  false_initiation_fraction_max: 0.40
+  minimum_event_macro_f1_improvement_over_a_plus: 0.01
+  minimum_meaningful_destroyed_input_f1_degradation: 0.005
+  destroyed_input_conditions: [zeroed, shuffled_global, shuffled_within_event]
+  primary: weather_event_macro_initiation_f1
+  secondary: [radar_limited_f1, onset_mae, brier, broad_skill_60_120min]
+  holdout_policy: no protected 2023 scoring unless the complete DEV promotion rule passes

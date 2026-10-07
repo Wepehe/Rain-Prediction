@@ -1,0 +1,31 @@
+version: 1
+name: stage_4c_c1_radar_thermodynamics
+stage: stage_4c
+data:
+  radar_manifest: artifacts/stage_4/materialization/stage4_radar_goes_tensor_manifest.csv
+  thermodynamic_manifest: artifacts/stage_4c/tensors/stage4c_thermodynamic_tensor_manifest.csv
+  input_frames: 10
+  target_frames: 20
+  rain_threshold_mm_hr: 0.1
+  train_splits: [train]
+  dev_splits: [dev, stage4_dev_repair]
+model:
+  architecture: radar_thermodynamic_latent_residual_convlstm
+  base_channels: 23
+  latent_channels: 72
+  thermodynamic_base_channels: 8
+  thermodynamic_latent_channels: 24
+  occurrence_thresholds_mm_hr: [0.1, 1.0, 2.5, 5.0]
+  variables: [TMP_2m, DPT_2m, CAPE_surface, CIN_surface, PWAT_column]
+  contexts_minutes: [0, 60, 120]
+loss:
+  occurrence_weight: 1.0
+  intensity_weight: 0.25
+  class_weights_from_train_only: true
+training:
+  batch_size: 4
+  torch_num_threads: 12
+  learning_rate: 0.0003
+  max_epochs: 30
+  early_stopping_patience: 6
+  progress_every_batches: 4

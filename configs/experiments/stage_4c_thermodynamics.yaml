@@ -1,0 +1,36 @@
+version: 1
+name: stage_4c_radar_plus_thermodynamics
+stage: stage_4c
+scientific_question: Does issue-time-safe thermodynamic information add initiation skill beyond capacity-matched radar-only?
+
+frozen_radar_control:
+  label: stage_4b_a_plus_radar_only_capacity_control
+  config: configs/experiments/stage_4b_a_plus_radar_capacity.yaml
+  checkpoint: artifacts/stage_4b/a_plus_radar/model_best.pt
+  probability_threshold: 0.35
+  calibration: identity
+
+nwp_gate:
+  source: NOAA HRRR
+  availability_lag_minutes: 60
+  variables: [TMP_2m, DPT_2m, CAPE_surface, CIN_surface, PWAT_column]
+  excluded_until_later_stages: [wind_and_dynamics_fields, pressure_level_vertical_velocity]
+  units:
+    TMP_2m: K
+    DPT_2m: K
+    CAPE_surface: J kg-1
+    CIN_surface: J kg-1
+    PWAT_column: kg m-2
+
+model:
+  radar_pathway: capacity_matched_A_plus
+  thermodynamic_encoder: modest_multiscale_convolutional_encoder
+  fusion: latent_residual
+  occurrence_thresholds_mm_hr: [0.1, 1.0, 2.5, 5.0]
+  prohibited_inputs: [wind, dynamics, future_model_cycles]
+
+development:
+  selection_split: [dev, stage4_dev_repair]
+  final_holdout: new_independent_stage4c_events_required
+  stage4b_holdout_role: historical_diagnostic_only
+  no_stage_c_prediction_before_radar_poor_v2_freeze: true

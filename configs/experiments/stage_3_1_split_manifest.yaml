@@ -1,0 +1,42 @@
+version: 1
+source_benchmark: configs/data/milestone_1_5.yaml
+fresh_holdout_source: configs/data/stage_3_1_fresh_holdout.yaml
+frozen_for_stage: stage_3_1_radar_control
+freeze_policy:
+  unit: whole_event
+  preserve_stage_3_baseline_label: minimal_conv_lstm_stage_3
+  existing_test_is_diagnostic_only: true
+  fresh_holdout_is_final: true
+  do_not_use_existing_test_or_fresh_holdout_for:
+    - architecture_selection
+    - early_stopping
+    - loss_weighting
+    - hyperparameter_selection
+    - normalization_statistics
+  final_holdout_use: one_final_evaluation_after_stage_3_1_procedure_is_frozen
+train_events:
+  - spring_frontal_rain_2024_04_03
+  - early_summer_convection_2024_05_21
+  - june_frontal_convection_2024_06_05
+  - july_isolated_convection_2024_07_24
+  - september_stratiform_2024_09_24
+  - october_frontal_rain_2024_10_31
+  - winter_synoptic_precip_2025_02_12
+  - spring_showers_2025_04_29
+  - early_summer_cells_2025_06_17
+  - august_dissipating_system_2025_08_19
+  - september_frontal_rain_2025_09_05
+  - lake_effect_precip_2025_12_02
+dev_events:
+  - toronto_flood_2024_07_16
+  - southern_ontario_storms_2024_08_17
+existing_test_events:
+  - late_june_organized_storms_2024_06_22
+  - august_severe_convection_2024_08_27
+  - lake_effect_precip_2024_11_29
+  - july_organized_convection_2025_07_13
+fresh_holdout_events:
+  - beryl_remnants_rain_2024_07_10
+  - midsummer_storms_2024_07_31
+  - debby_remnants_rain_2024_08_09
+  - spring_rain_2025_05_16

@@ -1,0 +1,64 @@
+version: 1
+name: stage_3_1_radar_control_multiscale_convlstm
+benchmark_config: configs/data/milestone_1_5.yaml
+extra_event_configs:
+  - configs/data/stage_3_1_fresh_holdout.yaml
+split_manifest: configs/experiments/stage_3_1_split_manifest.yaml
+preserved_baseline_manifest: artifacts/stage_3_1/minimal_conv_lstm_stage_3_baseline_manifest.json
+event_artifact_roots:
+  - artifacts/milestone_1_5
+  - artifacts/stage_3_1/fresh_holdout_materialization
+data:
+  source: mrms_precip_rate
+  input_minutes: 60
+  target_minutes: 120
+  cadence_minutes: 6
+  input_frames: 10
+  target_frames: 20
+  tile_size_km: 256
+  grid_resolution_km: 2
+  tile_pixels: 128
+  rain_threshold_mm_hr: 0.1
+  missing_is_dry: false
+sampling:
+  seed: 20260904
+  max_train_samples_per_event: 80
+  max_dev_samples_per_event: 60
+  max_existing_test_samples_per_event: 40
+  max_fresh_holdout_samples_per_event: 40
+  hard_negative_dry_samples_per_event: 12
+  category_weights:
+    initiation_centered: 0.30
+    active_precipitation: 0.25
+    dissipation: 0.15
+    random_weather_event: 0.15
+    dry_low_activity: 0.15
+augmentation:
+  spatial_translation_pixels: 8
+  rotations: false
+  flips: false
+  intensity_augmentation: false
+model:
+  architecture: multiscale_convlstm_encoder_decoder
+  input_channels: 2
+  base_channels: 18
+  latent_channels: 72
+  occurrence_thresholds_mm_hr: [0.1, 1.0, 2.5, 5.0]
+loss:
+  occurrence: weighted_bce_with_logits
+  intensity: smooth_l1_on_rainy_log1p
+  occurrence_weight: 1.0
+  intensity_weight: 0.25
+  class_weights_from_train_only: true
+training:
+  batch_size: 24
+  torch_num_threads: 12
+  preload_events: true
+  learning_rate: 0.0005
+  max_epochs: 40
+  early_stopping_patience: 6
+  lr_scheduler: reduce_on_plateau
+  progress_every_batches: 10
+  tiny_overfit_batch_size: 2
+  tiny_overfit_batches: 2
+  tiny_overfit_steps: 120

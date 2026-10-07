@@ -1,0 +1,59 @@
+version: 1
+name: stage_4b_b1_radar_plus_raw_goes_c13
+stage: stage_4b
+ablation_id: B1
+description: Radar plus raw GOES-East ABI C13 brightness-temperature history.
+
+frozen_radar_control:
+  label: multiscale_convlstm_radar_control_528k
+  config: configs/experiments/stage_3_1_radar_control.yaml
+  checkpoint: artifacts/stage_3_1/multiscale_convlstm_radar_control_528k/model_best.pt
+  normalization: artifacts/stage_3_1/multiscale_convlstm_radar_control_528k/normalization.json
+
+data:
+  tensor_manifest: artifacts/stage_4/materialization/stage4_radar_goes_tensor_manifest.csv
+  input_frames: 10
+  target_frames: 20
+  tile_pixels: 128
+  rain_threshold_mm_hr: 0.1
+  train_splits: [train]
+  dev_selection_splits: [dev, stage4_dev_repair]
+  excluded_final_holdout_split: stage4_initiation_holdout
+  goes_channel_indices: [0]
+  goes_channel_names:
+    - ABI_C13_brightness_temperature
+
+model:
+  architecture: stage4b_radar_goes_latent_residual_convlstm
+  radar_input_channels: 2
+  goes_input_channels: 2
+  base_channels: 18
+  latent_channels: 72
+  satellite_base_channels: 8
+  satellite_latent_channels: 24
+  occurrence_thresholds_mm_hr: [0.1, 1.0, 2.5, 5.0]
+  radar_initialization: frozen_stage_3_1_checkpoint_partial_load
+  satellite_fusion_initialization: zero_residual_to_preserve_initial_radar_solution
+
+loss:
+  occurrence: weighted_bce_with_logits
+  intensity: smooth_l1_on_rainy_log1p
+  occurrence_weight: 1.0
+  intensity_weight: 0.25
+  class_weights_from_train_only: true
+
+training:
+  batch_size: 4
+  torch_num_threads: 12
+  learning_rate: 0.0003
+  max_epochs: 30
+  early_stopping_patience: 6
+  progress_every_batches: 4
+
+capacity_control:
+  required: false
+  reason: >
+    The GOES branch is intentionally small relative to the 528k Stage 3.1 radar
+    control and is fused as a zero-initialized residual. If B gains are large or
+    parameter growth proves non-negligible, train a widened radar-only A+
+    control before final claims.

@@ -1,0 +1,57 @@
+version: 1
+name: stage_5_h1_frozen_a_plus_hrrr_goes_residual
+stage: stage_5
+scientific_question: Can issue-safe HRRR precipitation and GOES improve a frozen competent radar forecast when trained only as a correction?
+
+frozen_radar:
+  config: configs/experiments/stage_4b_a_plus_radar_capacity.yaml
+  checkpoint: artifacts/stage_4b/a_plus_radar/model_best.pt
+  checkpoint_sha256: 63e049c5ea75c3aa6af7b461fe6e9bca2db3c51198a667e71f02a7c6217efe70
+  trainable: false
+  cached_outputs: [occurrence_logits, conditional_intensity_raw, expected_rate]
+
+data:
+  splits: {train: [train], dev: [dev, stage4_dev_repair]}
+  forbidden_splits: [fresh_holdout, stage4_initiation_holdout, stage4c_final_holdout]
+  hrrr_apcp_bins: [0_60_minutes, 60_120_minutes]
+  hrrr_units: interval_accumulation_mm_equal_to_interval_mean_mm_per_hour
+  goes_channel_indices: [0, 1, 2, 3, 4]
+  goes_channels: [ABI_C13_brightness_temperature, cooling_10min, cooling_20min, cooling_30min, cooling_60min]
+
+model:
+  architecture: frozen_output_context_plus_hrrr_goes_residual_correction
+  occurrence_thresholds_mm_hr: [0.1, 1.0, 2.5, 5.0]
+  delta_logit_bound: 4.0
+  delta_intensity_raw_bound: 2.0
+  final_projection_initialization: zero
+  radar_gradient_permitted: false
+
+training:
+  batch_size: 4
+  learning_rate: 0.0003
+  max_epochs: 30
+  early_stopping_patience: 6
+  checkpoint_metric: dev_multitask_loss
+  large_architecture_sweep: false
+
+promotion_rule:
+  threshold_grid: {start: 0.05, stop: 0.95, step: 0.05}
+  minimum_event_macro_f1_gain_over_a_plus: 0.01
+  hard_negative_wet_area_fraction_max: 0.01
+  false_initiation_fraction_max: 0.40
+  minimum_f1_loss_under_all_nonradar_zero: 0.005
+  minimum_f1_loss_under_all_nonradar_shuffle: 0.005
+  minimum_f1_loss_for_at_least_one_individual_modality_destruction: 0.005
+  minimum_f1_gain_over_simple_hybrid: 0.005
+  protected_holdout_policy: forbidden_until_all_promotion_gates_pass_and_procedure_is_frozen
+
+simple_hybrid:
+  definition: lead-mapped probability blend of frozen A+ P(rate>0.1) and binary HRRR APCP occurrence
+  global_hrrr_weights: [0.0, 0.25, 0.5]
+  selection: DEV event-macro initiation F1 subject to the same false-alarm constraints
+
+nonradar_probe:
+  inputs: [HRRR_APCP_0_60, HRRR_APCP_60_120, GOES_C13_and_cooling]
+  radar_inputs: prohibited
+  role: diagnostic_only
+

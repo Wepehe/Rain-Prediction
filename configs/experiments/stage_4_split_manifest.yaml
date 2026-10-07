@@ -1,0 +1,56 @@
+version: 1
+source_stage31_split_manifest: configs/experiments/stage_3_1_split_manifest.yaml
+freeze_policy:
+  unit: whole_event
+  radar_control_label: multiscale_convlstm_radar_control_528k
+  stage4_initiation_holdout_is_final: true
+  do_not_use_stage4_initiation_holdout_for:
+    - architecture_selection
+    - early_stopping
+    - loss_weighting
+    - hyperparameter_selection
+    - probability_threshold_selection
+    - calibration
+    - normalization_statistics
+  final_holdout_use: one_final_evaluation_after_stage_4_procedure_is_frozen
+train_events:
+  - spring_frontal_rain_2024_04_03
+  - early_summer_convection_2024_05_21
+  - june_frontal_convection_2024_06_05
+  - july_isolated_convection_2024_07_24
+  - september_stratiform_2024_09_24
+  - october_frontal_rain_2024_10_31
+  - winter_synoptic_precip_2025_02_12
+  - spring_showers_2025_04_29
+  - early_summer_cells_2025_06_17
+  - august_dissipating_system_2025_08_19
+  - september_frontal_rain_2025_09_05
+  - lake_effect_precip_2025_12_02
+dev_events:
+  - toronto_flood_2024_07_16
+  - southern_ontario_storms_2024_08_17
+stage4_dev_repair_events:
+  - stage4_dev_initiation_2026_06_18
+  - stage4_dev_dissipation_2026_05_20
+  - stage4_dev_dry_favourable_2026_07_10
+  - stage4_dev_post_storm_dry_2026_05_21
+existing_test_events:
+  - late_june_organized_storms_2024_06_22
+  - august_severe_convection_2024_08_27
+  - lake_effect_precip_2024_11_29
+  - july_organized_convection_2025_07_13
+fresh_holdout_events:
+  - beryl_remnants_rain_2024_07_10
+  - midsummer_storms_2024_07_31
+  - debby_remnants_rain_2024_08_09
+  - spring_rain_2025_05_16
+stage4_initiation_holdout_events:
+  - stage4_init_holdout_june21_2025_derecho
+  - stage4_init_holdout_may20_2026_southwest_ontario
+  - stage4_init_holdout_july27_2026_southwest_ontario
+  - stage4_init_holdout_aug30_2026_eastern_ontario
+  - stage4_init_holdout_sep02_2026_southern_ontario
+  - stage4_holdout_favourable_dry_2025_06_20
+  - stage4_holdout_favourable_dry_2026_07_26
+  - stage4_holdout_favourable_dry_2026_08_29
+  - stage4_holdout_favourable_dry_2026_09_01

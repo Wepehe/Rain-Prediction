@@ -1,0 +1,148 @@
+version: 1
+name: stage_4_controlled_multimodal_nowcasting
+data_root: data
+split_manifest: configs/experiments/stage_4_split_manifest.yaml
+
+frozen_radar_control:
+  label: multiscale_convlstm_radar_control_528k
+  config: configs/experiments/stage_3_1_radar_control.yaml
+  checkpoint: artifacts/stage_3_1/multiscale_convlstm_radar_control_528k/model_best.pt
+  normalization: artifacts/stage_3_1/multiscale_convlstm_radar_control_528k/normalization.json
+  split_manifest: configs/experiments/stage_3_1_split_manifest.yaml
+  sample_manifest: artifacts/stage_3_1/sample_manifest.csv
+  train_samples: 1037
+  metric_outputs:
+    - artifacts/stage_3_1/multiscale_convlstm_radar_control_528k/evaluation/dev_metrics.csv
+    - artifacts/stage_3_1/multiscale_convlstm_radar_control_528k/evaluation/existing_test_metrics.csv
+    - artifacts/stage_3_1/multiscale_convlstm_radar_control_528k/evaluation/fresh_holdout_metrics.csv
+    - artifacts/stage_3_1/multiscale_convlstm_radar_control_528k/head_analysis_dev/dev_probability_threshold_sweep.csv
+    - artifacts/stage_3_1/multiscale_convlstm_radar_control_528k/lifecycle/existing_test_lifecycle_metrics.csv
+    - artifacts/stage_3_1/multiscale_convlstm_radar_control_528k/lifecycle/fresh_holdout_lifecycle_metrics.csv
+
+event_configs:
+  - path: configs/data/milestone_1_5.yaml
+    role: stage3_training_dev_existing_test
+  - path: configs/data/stage_3_1_fresh_holdout.yaml
+    role: stage31_fresh_holdout
+  - path: configs/data/stage_4_evaluation_repair.yaml
+    role: stage4_repair
+
+audit:
+  anchor_cadence_minutes: 60
+  max_anchors_per_event: 4
+
+modalities:
+  radar:
+    source_dataset: NOAA MRMS PrecipRate
+    history_lags_minutes: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54]
+    spatial_resolution: "2 km Stage 3.1 analysis grid"
+    temporal_resolution: "6 min"
+    units: "mm h-1"
+    interpolation_method: "Stage 3.1 MRMS crop and 2 km max downsample"
+    normalization_method: "frozen Stage 3.1 train-only log1p normalization"
+  satellite:
+    source_dataset: NOAA GOES-East ABI-L2-CMIPC
+    channels:
+      - ABI_C13_brightness_temperature
+      - ABI_C13_cooling_tendency_10min
+      - ABI_C13_cooling_tendency_20min
+      - ABI_C13_cooling_tendency_30min
+      - ABI_C13_cooling_tendency_60min
+    history_lags_minutes: [0, 10, 20, 30, 60]
+    availability_latency_minutes: 10
+    spatial_resolution: "GOES CONUS fixed grid, remapped to Stage 3.1 grid"
+    temporal_resolution: "approximately 5 min CONUS scans"
+    units: "K or K per lag interval"
+    interpolation_method: "projection-aware remap to EPSG:3978 with validity mask"
+    normalization_method: "train-only per-channel robust z-score"
+  nwp:
+    source_dataset: NOAA HRRR pressure/surface fields
+    availability_lag_minutes: 60
+    forecast_offsets_minutes: [0, 60, 120]
+    spatial_resolution: "3 km native HRRR, remapped to Stage 3.1 grid"
+    temporal_resolution: "hourly cycles/forecast fields"
+    interpolation_method: "projection-aware linear interpolation, nearest only outside convex hull"
+    normalization_method: "train-only per-variable z-score"
+    variables:
+      - TMP_2m
+      - DPT_2m
+      - UGRD_10m
+      - VGRD_10m
+      - MSLP
+      - CAPE_surface
+      - CIN_surface
+      - PWAT_column
+      - TMP_850hPa
+      - RH_850hPa
+      - UGRD_850hPa
+      - VGRD_850hPa
+      - TMP_700hPa
+      - RH_700hPa
+      - UGRD_700hPa
+      - VGRD_700hPa
+      - TMP_500hPa
+      - UGRD_500hPa
+      - VGRD_500hPa
+      - VVEL_700hPa
+    units:
+      TMP_2m: K
+      DPT_2m: K
+      UGRD_10m: m s-1
+      VGRD_10m: m s-1
+      MSLP: Pa
+      CAPE_surface: J kg-1
+      CIN_surface: J kg-1
+      PWAT_column: kg m-2
+      TMP_850hPa: K
+      RH_850hPa: percent
+      UGRD_850hPa: m s-1
+      VGRD_850hPa: m s-1
+      TMP_700hPa: K
+      RH_700hPa: percent
+      UGRD_700hPa: m s-1
+      VGRD_700hPa: m s-1
+      TMP_500hPa: K
+      UGRD_500hPa: m s-1
+      VGRD_500hPa: m s-1
+      VVEL_700hPa: Pa s-1
+  static:
+    source_dataset: Stage 4 static geography
+    variables:
+      - latitude
+      - longitude
+      - elevation
+      - land_water_mask
+      - great_lakes_mask
+      - distance_to_great_lakes_shoreline
+    available_time_utc: "2000-01-01T00:00:00Z"
+    spatial_resolution: "2 km Stage 3.1 analysis grid"
+    interpolation_method: "constant grid fields"
+    normalization_method: "fixed deterministic scaling fitted on train geography only where applicable"
+    units:
+      latitude: degrees_north
+      longitude: degrees_east
+      elevation: m
+      land_water_mask: binary
+      great_lakes_mask: binary
+      distance_to_great_lakes_shoreline: km
+
+ablation_sequence:
+  - id: A
+    name: frozen_stage31_radar_control
+    inputs: [radar]
+    train_new_model: false
+  - id: B
+    name: radar_plus_goes_c13_cooling
+    inputs: [radar, satellite]
+  - id: C
+    name: radar_plus_basic_thermodynamics
+    inputs: [radar, nwp_basic_thermodynamics]
+  - id: D
+    name: radar_plus_wind_dynamics
+    inputs: [radar, nwp_wind_dynamics]
+  - id: E
+    name: radar_plus_satellite_plus_thermodynamics
+    inputs: [radar, satellite, nwp_basic_thermodynamics]
+  - id: F
+    name: radar_plus_satellite_plus_full_verified_nwp
+    inputs: [radar, satellite, nwp_full_verified]

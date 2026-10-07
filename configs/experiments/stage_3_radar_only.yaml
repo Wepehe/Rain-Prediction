@@ -1,0 +1,54 @@
+version: 1
+name: stage_3_radar_only_convlstm
+benchmark_config: configs/data/milestone_1_5.yaml
+split_manifest: configs/experiments/stage_3_split_manifest.yaml
+data:
+  source: mrms_precip_rate
+  input_minutes: 60
+  target_minutes: 120
+  cadence_minutes: 6
+  input_frames: 10
+  target_frames: 20
+  tile_size_km: 256
+  grid_resolution_km: 2
+  tile_pixels: 128
+  rain_threshold_mm_hr: 0.1
+  missing_is_dry: false
+sampling:
+  seed: 20260903
+  max_train_samples_per_event: 40
+  max_dev_samples_per_event: 40
+  max_test_samples_per_event: 40
+  hard_negative_dry_samples_per_event: 10
+  category_weights:
+    initiation_centered: 0.35
+    active_precipitation: 0.25
+    dissipation: 0.15
+    random_weather_event: 0.15
+    dry_low_activity: 0.10
+augmentation:
+  spatial_translation_pixels: 8
+  rotations: false
+  flips: false
+  intensity_augmentation: false
+model:
+  architecture: compact_convlstm_encoder_decoder
+  input_channels: 2
+  hidden_channels: 16
+  encoder_channels: 16
+  decoder_channels: 16
+  occurrence_threshold_mm_hr: 0.1
+loss:
+  occurrence: bce_with_logits
+  intensity: smooth_l1_on_rainy_log1p
+  occurrence_weight: 1.0
+  intensity_weight: 0.5
+training:
+  batch_size: 2
+  learning_rate: 0.001
+  max_epochs: 6
+  early_stopping_patience: 2
+  max_train_batches_per_epoch: 20
+  max_dev_batches: 10
+  tiny_overfit_batches: 2
+  tiny_overfit_steps: 20
