@@ -1,0 +1,28 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Meteorological data, experiment outputs, caches, and local tools are local-only.
+/data/
+/experiments/
+/.tools/
+
+# Generated artifacts stay local except for the byte-frozen operational bundle.
+/artifacts/**
+!/artifacts/.gitkeep
+!/artifacts/operational/
+/artifacts/operational/**
+!/artifacts/operational/residual_v1/
+!/artifacts/operational/residual_v1/checkpoint.pt
+!/artifacts/operational/residual_v1/normalization.json
+!/artifacts/operational/residual_v1/config.yaml
+!/artifacts/operational/residual_v1/model_source.py
+!/artifacts/operational/residual_v1/manifest.json
+
+# Local runtime products.
+*.log
+.streamlit/secrets.toml

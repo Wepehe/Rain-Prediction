@@ -1,0 +1,64 @@
+version: 1
+projection: EPSG:3978
+
+domains:
+  research:
+    description: Ontario plus upstream context; used for long-term capacity estimates.
+    bbox_wgs84: [-96.0, 40.5, -72.0, 57.5]
+    resolution_km: 2.0
+    approximate_width_km: 1600
+    approximate_height_km: 1900
+  southern_pilot:
+    description: Lower Great Lakes and southern Ontario vertical-slice domain.
+    bbox_wgs84: [-86.5, 40.5, -72.5, 49.5]
+    resolution_km: 2.0
+    approximate_width_km: 1050
+    approximate_height_km: 1000
+  training_tile:
+    description: Physically fixed 512 km square training tile.
+    pixels: [256, 256]
+    resolution_km: 2.0
+
+timing:
+  radar_interval_minutes: 6
+  satellite_interval_minutes: 10
+  nwp_interval_minutes: 60
+  input_minutes: 60
+  output_minutes: 120
+
+storage:
+  # Processed tensors assume float16 plus one byte validity mask per value.
+  bytes_per_stored_value: 3
+  radar_channels: 1
+  satellite_channels: 4
+  nwp_channels: 24
+  station_feature_channels: 4
+  processed_cadence_minutes: 10
+  compression_ratio: 2.5
+  raw_overhead_factor: 1.35
+
+event_detection:
+  rain_threshold_mm_hr: 0.1
+  strong_threshold_mm_hr: 5.0
+  clear_history_minutes: 30
+  onset_horizon_minutes: 120
+  minimum_wet_pixels: 9
+  maximum_missing_fraction: 0.1
+
+sample_events:
+  - id: toronto_flood_2024_07_16
+    start_utc: "2024-07-16T12:00:00Z"
+    end_utc: "2024-07-16T18:00:00Z"
+    bbox_wgs84: [-81.0, 42.0, -77.5, 45.0]
+    status: candidate_requires_event_mining
+  - id: southern_ontario_storms_2024_08_17
+    start_utc: "2024-08-17T14:00:00Z"
+    end_utc: "2024-08-17T22:00:00Z"
+    bbox_wgs84: [-83.5, 41.5, -77.5, 45.5]
+    status: candidate_requires_event_mining
+  - id: october_hard_negative_2024_10_01
+    start_utc: "2024-10-01T16:00:00Z"
+    end_utc: "2024-10-01T22:00:00Z"
+    bbox_wgs84: [-83.5, 41.5, -77.5, 45.5]
+    status: candidate_requires_event_mining
+

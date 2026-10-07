@@ -1,0 +1,41 @@
+version: 1
+projection: EPSG:3978
+
+benchmark:
+  name: southern_ontario_stage_3_1_fresh_holdout
+  cadence_minutes: 6
+  evaluation_resolution_km: 2.0
+
+events:
+  - id: beryl_remnants_rain_2024_07_10
+    split: fresh_holdout
+    class: positive_precipitation
+    type_labels: [summer, tropical_remnants, heavy_rain]
+    start_utc: "2024-07-10T12:00:00Z"
+    end_utc: "2024-07-10T22:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    rationale: Unused summer heavy-rain/frontal-remnant window, independent from existing July 16/24 events.
+  - id: midsummer_storms_2024_07_31
+    split: fresh_holdout
+    class: positive_initiation
+    type_labels: [summer, thunderstorms, initiation]
+    start_utc: "2024-07-31T16:00:00Z"
+    end_utc: "2024-08-01T00:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    rationale: Unused midsummer convective candidate, separated from existing July 24 and August 17/27 systems.
+  - id: debby_remnants_rain_2024_08_09
+    split: fresh_holdout
+    class: positive_precipitation
+    type_labels: [summer, tropical_remnants, stratiform]
+    start_utc: "2024-08-09T10:00:00Z"
+    end_utc: "2024-08-09T22:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    rationale: Unused tropical-remnant/synoptic rain candidate, independent from existing August 17/27 systems.
+  - id: spring_rain_2025_05_16
+    split: fresh_holdout
+    class: positive_precipitation
+    type_labels: [spring, frontal_rain, showers]
+    start_utc: "2025-05-16T12:00:00Z"
+    end_utc: "2025-05-16T22:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    rationale: Unused 2025 spring event candidate, separated from April 29/30 and June 16/17 windows.

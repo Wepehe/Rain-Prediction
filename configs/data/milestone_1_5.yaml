@@ -1,0 +1,362 @@
+version: 1
+inherits: configs/data/milestone_1.yaml
+projection: EPSG:3978
+
+benchmark:
+  name: southern_ontario_milestone_1_5
+  cadence_minutes: 6
+  evaluation_resolution_km: 2.0
+  issue_time_policy: every input record must have available_time_utc <= forecast_issue_time_utc
+  southern_ontario_polygon_wgs84:
+    - [-84.9, 41.6]
+    - [-82.0, 41.4]
+    - [-78.8, 43.0]
+    - [-74.7, 44.4]
+    - [-76.2, 46.6]
+    - [-80.0, 47.3]
+    - [-84.8, 46.5]
+    - [-84.9, 41.6]
+  event_independence:
+    minimum_dry_history_minutes: 30
+    onset_horizon_minutes: 120
+    morphology_opening_pixels: 1
+    morphology_closing_pixels: 1
+    minimum_object_pixels: 12
+    link_max_gap_minutes: 24
+    link_max_centroid_distance_km: 35.0
+    link_min_bbox_iou: 0.05
+    duplicate_suppression_minutes: 60
+    boundary_buffer_pixels: 4
+    current_rain_distance_pixels: 8
+  verification:
+    thresholds_mm_hr: [0.1, 1.0, 5.0]
+    lead_minutes: [6, 12, 18, 30, 48, 60, 90, 120]
+    fss_neighbourhood_radii_km: [6.0, 18.0, 36.0]
+
+events:
+  - id: toronto_flood_2024_07_16
+    split: dev
+    class: positive_initiation
+    type_labels: [summer, urban_flooding, organized_convection, initiation]
+    start_utc: "2024-07-16T12:00:00Z"
+    end_utc: "2024-07-16T18:00:00Z"
+    bbox_wgs84: [-81.0, 42.0, -77.5, 45.0]
+    paired_negative_id: toronto_favourable_dry_2024_07_15
+    rationale: Existing pilot event with strong initiation and heavy rain over the western GTA.
+  - id: southern_ontario_storms_2024_08_17
+    split: dev
+    class: positive_initiation
+    type_labels: [summer, thunderstorms, initiation, organized_convection]
+    start_utc: "2024-08-17T14:00:00Z"
+    end_utc: "2024-08-17T22:00:00Z"
+    bbox_wgs84: [-83.5, 41.5, -77.5, 45.5]
+    paired_negative_id: southern_ontario_favourable_dry_2024_08_18
+    rationale: Existing pilot event with widespread convective development across southwestern Ontario.
+  - id: spring_frontal_rain_2024_04_03
+    split: train
+    class: positive_precipitation
+    type_labels: [spring, frontal_rain, stratiform]
+    start_utc: "2024-04-03T12:00:00Z"
+    end_utc: "2024-04-03T20:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: spring_cloudy_dry_2024_04_04
+    rationale: Cool-season/spring synoptic precipitation candidate.
+  - id: early_summer_convection_2024_05_21
+    split: train
+    class: positive_initiation
+    type_labels: [summer, isolated_convection, initiation]
+    start_utc: "2024-05-21T18:00:00Z"
+    end_utc: "2024-05-22T02:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: early_summer_favourable_dry_2024_05_20
+    rationale: Warm-season convective initiation candidate.
+  - id: june_frontal_convection_2024_06_05
+    split: train
+    class: positive_initiation
+    type_labels: [summer, frontal_convection, initiation]
+    start_utc: "2024-06-05T16:00:00Z"
+    end_utc: "2024-06-06T00:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: june_favourable_dry_2024_06_04
+    rationale: Warm-sector/frontal convection candidate.
+  - id: late_june_organized_storms_2024_06_22
+    split: test
+    class: positive_initiation
+    type_labels: [summer, organized_convection, thunderstorms, initiation]
+    start_utc: "2024-06-22T16:00:00Z"
+    end_utc: "2024-06-23T00:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: late_june_favourable_dry_2024_06_21
+    rationale: Organized warm-season convective candidate reserved for event-level testing.
+  - id: july_isolated_convection_2024_07_24
+    split: train
+    class: positive_initiation
+    type_labels: [summer, isolated_convection, initiation]
+    start_utc: "2024-07-24T17:00:00Z"
+    end_utc: "2024-07-25T01:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: july_favourable_dry_2024_07_25
+    rationale: Isolated-cell candidate selected to avoid only visually dramatic cases.
+  - id: august_severe_convection_2024_08_27
+    split: test
+    class: positive_initiation
+    type_labels: [summer, rapid_thunderstorm_development, initiation]
+    start_utc: "2024-08-27T17:00:00Z"
+    end_utc: "2024-08-28T01:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: august_favourable_dry_2024_08_26
+    rationale: Late-summer rapidly developing thunderstorm candidate reserved for testing.
+  - id: september_stratiform_2024_09_24
+    split: train
+    class: positive_precipitation
+    type_labels: [autumn, stratiform, frontal_rain]
+    start_utc: "2024-09-24T12:00:00Z"
+    end_utc: "2024-09-24T22:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: september_cloudy_dry_2024_09_23
+    rationale: Broader autumn precipitation candidate for non-convective coverage.
+  - id: october_frontal_rain_2024_10_31
+    split: train
+    class: positive_precipitation
+    type_labels: [autumn, frontal_rain, weakening]
+    start_utc: "2024-10-31T12:00:00Z"
+    end_utc: "2024-10-31T22:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: october_cloudy_dry_2024_10_30
+    rationale: Autumn frontal/rainband candidate with possible weakening phase.
+  - id: lake_effect_precip_2024_11_29
+    split: test
+    class: positive_precipitation
+    type_labels: [cool_season, lake_effect, bands]
+    start_utc: "2024-11-29T10:00:00Z"
+    end_utc: "2024-11-29T22:00:00Z"
+    bbox_wgs84: [-84.8, 41.5, -77.0, 46.5]
+    paired_negative_id: lake_effect_setup_dry_2024_11_28
+    rationale: Great-Lakes-influenced cool-season banded precipitation candidate.
+  - id: winter_synoptic_precip_2025_02_12
+    split: train
+    class: positive_precipitation
+    type_labels: [winter, stratiform, synoptic]
+    start_utc: "2025-02-12T12:00:00Z"
+    end_utc: "2025-02-13T00:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: winter_cloudy_dry_2025_02_11
+    rationale: Cool-season synoptic precipitation candidate.
+  - id: spring_showers_2025_04_29
+    split: train
+    class: positive_initiation
+    type_labels: [spring, showers, weak_initiation]
+    start_utc: "2025-04-29T14:00:00Z"
+    end_utc: "2025-04-29T23:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: spring_favourable_dry_2025_04_30
+    rationale: Spring shower initiation candidate.
+  - id: early_summer_cells_2025_06_17
+    split: train
+    class: positive_initiation
+    type_labels: [summer, isolated_convection, initiation]
+    start_utc: "2025-06-17T17:00:00Z"
+    end_utc: "2025-06-18T01:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: early_summer_favourable_dry_2025_06_16
+    rationale: Second-season isolated initiation candidate for independence across years.
+  - id: july_organized_convection_2025_07_13
+    split: test
+    class: positive_initiation
+    type_labels: [summer, organized_convection, initiation]
+    start_utc: "2025-07-13T16:00:00Z"
+    end_utc: "2025-07-14T00:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: july_favourable_dry_2025_07_12
+    rationale: Second-season organized convection candidate reserved for event-level testing.
+  - id: august_dissipating_system_2025_08_19
+    split: train
+    class: positive_precipitation
+    type_labels: [summer, organized_convection, dissipation]
+    start_utc: "2025-08-19T16:00:00Z"
+    end_utc: "2025-08-20T02:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: august_favourable_dry_2025_08_18
+    rationale: Warm-season system candidate selected for weakening/dissipation behaviour.
+  - id: september_frontal_rain_2025_09_05
+    split: train
+    class: positive_precipitation
+    type_labels: [autumn, frontal_rain, stratiform]
+    start_utc: "2025-09-05T12:00:00Z"
+    end_utc: "2025-09-05T22:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: september_cloudy_dry_2025_09_04
+    rationale: Early-autumn frontal rain candidate.
+  - id: lake_effect_precip_2025_12_02
+    split: train
+    class: positive_precipitation
+    type_labels: [cool_season, lake_effect, bands]
+    start_utc: "2025-12-02T10:00:00Z"
+    end_utc: "2025-12-02T22:00:00Z"
+    bbox_wgs84: [-84.8, 41.5, -77.0, 46.5]
+    paired_negative_id: lake_effect_setup_dry_2025_12_01
+    rationale: Second cool-season Great-Lakes-influenced precipitation candidate.
+
+hard_negative_events:
+  - id: toronto_favourable_dry_2024_07_15
+    match_to: toronto_flood_2024_07_16
+    split: dev
+    class: hard_negative_candidate
+    type_labels: [summer, favourable_environment, no_initiation]
+    start_utc: "2024-07-15T12:00:00Z"
+    end_utc: "2024-07-15T18:00:00Z"
+    bbox_wgs84: [-81.0, 42.0, -77.5, 45.0]
+    verification_bbox_wgs84: [-78.495, 42.105, -77.505, 43.095]
+  - id: southern_ontario_favourable_dry_2024_08_18
+    match_to: southern_ontario_storms_2024_08_17
+    split: dev
+    class: hard_negative_candidate
+    type_labels: [summer, favourable_environment, no_initiation]
+    start_utc: "2024-08-18T14:00:00Z"
+    end_utc: "2024-08-18T22:00:00Z"
+    bbox_wgs84: [-83.5, 41.5, -77.5, 45.5]
+    verification_bbox_wgs84: [-83.495, 43.805, -82.105, 45.195]
+  - id: spring_cloudy_dry_2024_04_04
+    match_to: spring_frontal_rain_2024_04_03
+    split: train
+    class: hard_negative_candidate
+    type_labels: [spring, cloudy, no_precipitation_initiation]
+    start_utc: "2024-04-04T12:00:00Z"
+    end_utc: "2024-04-04T20:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-77.945, 42.505, -77.355, 43.095]
+  - id: early_summer_favourable_dry_2024_05_20
+    match_to: early_summer_convection_2024_05_21
+    split: train
+    class: hard_negative_candidate
+    type_labels: [summer, favourable_environment, no_initiation]
+    start_utc: "2024-05-20T18:00:00Z"
+    end_utc: "2024-05-21T02:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-77.995, 44.505, -76.005, 46.495]
+  - id: june_favourable_dry_2024_06_04
+    match_to: june_frontal_convection_2024_06_05
+    split: train
+    class: hard_negative_candidate
+    type_labels: [summer, favourable_environment, no_initiation]
+    start_utc: "2024-06-04T16:00:00Z"
+    end_utc: "2024-06-05T00:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-79.495, 42.005, -77.505, 43.995]
+  - id: late_june_favourable_dry_2024_06_21
+    match_to: late_june_organized_storms_2024_06_22
+    split: test
+    class: hard_negative_candidate
+    type_labels: [summer, favourable_environment, no_initiation]
+    start_utc: "2024-06-21T16:00:00Z"
+    end_utc: "2024-06-22T00:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-81.795, 41.605, -80.405, 42.995]
+  - id: july_favourable_dry_2024_07_25
+    match_to: july_isolated_convection_2024_07_24
+    split: train
+    class: hard_negative_candidate
+    type_labels: [summer, favourable_environment, no_initiation]
+    start_utc: "2024-07-25T17:00:00Z"
+    end_utc: "2024-07-26T01:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-84.495, 44.505, -82.505, 46.495]
+  - id: august_favourable_dry_2024_08_26
+    match_to: august_severe_convection_2024_08_27
+    split: test
+    class: hard_negative_candidate
+    type_labels: [summer, favourable_environment, no_initiation]
+    start_utc: "2024-08-26T17:00:00Z"
+    end_utc: "2024-08-27T01:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-79.495, 44.505, -77.505, 46.495]
+  - id: september_cloudy_dry_2024_09_23
+    match_to: september_stratiform_2024_09_24
+    split: train
+    class: hard_negative_candidate
+    type_labels: [autumn, cloudy, no_precipitation_initiation]
+    start_utc: "2024-09-23T12:00:00Z"
+    end_utc: "2024-09-23T22:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-84.495, 44.255, -82.505, 46.245]
+  - id: october_cloudy_dry_2024_10_30
+    match_to: october_frontal_rain_2024_10_31
+    split: train
+    class: hard_negative_candidate
+    type_labels: [autumn, cloudy, no_precipitation_initiation]
+    start_utc: "2024-10-30T12:00:00Z"
+    end_utc: "2024-10-30T22:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-79.995, 44.505, -78.005, 46.495]
+  - id: lake_effect_setup_dry_2024_11_28
+    match_to: lake_effect_precip_2024_11_29
+    split: test
+    class: hard_negative_candidate
+    type_labels: [cool_season, lake_effect_setup, no_bands]
+    start_utc: "2024-11-28T10:00:00Z"
+    end_utc: "2024-11-28T22:00:00Z"
+    bbox_wgs84: [-84.8, 41.5, -77.0, 46.5]
+    verification_bbox_wgs84: [-84.545, 42.005, -82.555, 43.995]
+  - id: winter_cloudy_dry_2025_02_11
+    match_to: winter_synoptic_precip_2025_02_12
+    split: train
+    class: hard_negative_candidate
+    type_labels: [winter, cloudy, no_precipitation_initiation]
+    start_utc: "2025-02-11T12:00:00Z"
+    end_utc: "2025-02-12T00:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-83.495, 44.505, -81.505, 46.495]
+  - id: spring_favourable_dry_2025_04_30
+    match_to: spring_showers_2025_04_29
+    split: train
+    class: hard_negative_candidate
+    type_labels: [spring, favourable_environment, no_initiation]
+    start_utc: "2025-04-30T14:00:00Z"
+    end_utc: "2025-04-30T23:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-84.495, 44.505, -82.505, 46.495]
+  - id: early_summer_favourable_dry_2025_06_16
+    match_to: early_summer_cells_2025_06_17
+    split: train
+    class: hard_negative_candidate
+    type_labels: [summer, favourable_environment, no_initiation]
+    start_utc: "2025-06-16T17:00:00Z"
+    end_utc: "2025-06-17T01:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-82.995, 43.505, -81.005, 45.495]
+  - id: july_favourable_dry_2025_07_12
+    match_to: july_organized_convection_2025_07_13
+    split: test
+    class: hard_negative_candidate
+    type_labels: [summer, favourable_environment, no_initiation]
+    start_utc: "2025-07-12T16:00:00Z"
+    end_utc: "2025-07-13T00:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-79.245, 43.505, -77.255, 45.495]
+  - id: august_favourable_dry_2025_08_18
+    match_to: august_dissipating_system_2025_08_19
+    split: train
+    class: hard_negative_candidate
+    type_labels: [summer, favourable_environment, no_initiation]
+    start_utc: "2025-08-18T16:00:00Z"
+    end_utc: "2025-08-19T02:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-80.495, 44.505, -78.505, 46.495]
+  - id: september_cloudy_dry_2025_09_04
+    match_to: september_frontal_rain_2025_09_05
+    split: train
+    class: hard_negative_candidate
+    type_labels: [autumn, cloudy, no_precipitation_initiation]
+    start_utc: "2025-09-04T12:00:00Z"
+    end_utc: "2025-09-04T22:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-84.245, 42.255, -82.255, 44.245]
+  - id: lake_effect_setup_dry_2025_12_01
+    match_to: lake_effect_precip_2025_12_02
+    split: train
+    class: hard_negative_candidate
+    type_labels: [cool_season, lake_effect_setup, no_bands]
+    start_utc: "2025-12-01T10:00:00Z"
+    end_utc: "2025-12-01T22:00:00Z"
+    bbox_wgs84: [-84.8, 41.5, -77.0, 46.5]
+    verification_bbox_wgs84: [-84.545, 41.505, -82.555, 43.495]

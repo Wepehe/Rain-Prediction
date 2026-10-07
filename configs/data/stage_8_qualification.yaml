@@ -1,0 +1,113 @@
+version: 1
+stage: stage_8_event_qualification_only
+created_before_object_mining: true
+gate_design_authorized: false
+projection: EPSG:3978
+
+domain:
+  bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  source_resolution_degrees: 0.01
+  evaluation_resolution_km: 2.0
+  tile_pixels: 128
+
+timing:
+  cadence_minutes: 6
+  history_minutes: 60
+  target_minutes: 120
+
+quality_rules:
+  maximum_missing_expected_scan_fraction: 0.10
+  minimum_finite_fraction_per_retained_tile_window: 0.90
+  require_exact_expected_timestamps: true
+  source_units: mm h-1
+  no_temporal_gap_filling: true
+  hrrr_availability_lag_minutes: 60
+  maximum_missing_issue_safe_hrrr_fraction: 0.0
+
+object_rules:
+  rain_threshold_mm_hr: 0.1
+  strong_threshold_mm_hr: 5.0
+  minimum_component_pixels_at_2km: 12
+  clean_initiation_requires_apparent_initiation: true
+  reject_advective_entry: true
+  reject_domain_boundary_contact: true
+  minimum_future_max_mm_hr: 1.0
+
+positive_event_rule:
+  minimum_distinct_clean_issue_times: 3
+  require_complete_60min_history_and_120min_target: true
+  require_all_retained_tiles_to_pass_finite_fraction: true
+  independent_credit_is_binary_per_weather_system: true
+
+hard_negative_rule:
+  history_and_target_must_be_radar_dry: true
+  rain_threshold_mm_hr: 0.1
+  maximum_mean_wet_fraction: 0.001
+  maximum_single_frame_wet_fraction: 0.005
+  maximum_heavy_rain_fraction: 0.0
+  minimum_finite_fraction: 0.90
+  minimum_separation_between_issue_times_minutes: 120
+
+development_events:
+  - id: stage7_dev_jun21_2021_frontal_convection
+    start_utc: "2021-06-21T12:00:00+00:00"
+    end_utc: "2021-06-22T04:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  - id: stage7_dev_jul15_2021_barrie_outbreak
+    start_utc: "2021-07-15T12:00:00+00:00"
+    end_utc: "2021-07-16T04:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  - id: stage7_dev_sep22_2021_rain
+    start_utc: "2021-09-22T12:00:00+00:00"
+    end_utc: "2021-09-24T06:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  - id: stage7_dev_may21_2022_derecho
+    start_utc: "2022-05-21T12:00:00+00:00"
+    end_utc: "2022-05-22T04:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  - id: stage7_dev_aug29_2022_wet_windy
+    start_utc: "2022-08-29T12:00:00+00:00"
+    end_utc: "2022-08-31T06:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  - id: stage8_add_dev_aug11_2021
+    start_utc: "2021-08-11T12:00:00+00:00"
+    end_utc: "2021-08-12T04:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  - id: stage8_add_dev_sep07_2021
+    start_utc: "2021-09-07T12:00:00+00:00"
+    end_utc: "2021-09-08T04:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  - id: stage8_add_dev_sep08_2021
+    start_utc: "2021-09-08T12:00:00+00:00"
+    end_utc: "2021-09-09T04:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  - id: stage8_add_dev_nov21_2021
+    start_utc: "2021-11-21T12:00:00+00:00"
+    end_utc: "2021-11-22T04:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+
+final_events:
+  - id: stage7_final_jun16_2022_cold_front
+    start_utc: "2022-06-16T12:00:00+00:00"
+    end_utc: "2022-06-17T04:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  - id: stage8_add_final_may15_2022
+    start_utc: "2022-05-15T12:00:00+00:00"
+    end_utc: "2022-05-16T04:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  - id: stage8_add_final_jul19_2022
+    start_utc: "2022-07-19T12:00:00+00:00"
+    end_utc: "2022-07-20T04:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  - id: stage8_add_final_jul24_2022
+    start_utc: "2022-07-24T12:00:00+00:00"
+    end_utc: "2022-07-25T04:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  - id: stage8_add_final_jul28_2022
+    start_utc: "2022-07-28T12:00:00+00:00"
+    end_utc: "2022-07-29T04:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+  - id: stage8_add_final_aug20_2022
+    start_utc: "2022-08-20T12:00:00+00:00"
+    end_utc: "2022-08-21T04:00:00+00:00"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]

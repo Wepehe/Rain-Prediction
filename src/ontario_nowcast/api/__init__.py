@@ -1,0 +1,2 @@
+"""Forecast service interfaces."""
+

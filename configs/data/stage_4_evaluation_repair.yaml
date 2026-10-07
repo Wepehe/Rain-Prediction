@@ -1,0 +1,176 @@
+version: 1
+projection: EPSG:3978
+
+benchmark:
+  name: southern_ontario_stage_4_evaluation_repair
+  cadence_minutes: 6
+  evaluation_resolution_km: 2.0
+  issue_time_policy: every input record must have available_time_utc <= forecast_issue_time_utc
+  status: candidate_windows_require_materialization_and_multimodal_audit
+  southern_ontario_polygon_wgs84:
+    - [-84.9, 41.6]
+    - [-82.0, 41.4]
+    - [-78.8, 43.0]
+    - [-74.7, 44.4]
+    - [-76.2, 46.6]
+    - [-80.0, 47.3]
+    - [-84.8, 46.5]
+    - [-84.9, 41.6]
+  verification:
+    thresholds_mm_hr: [0.1, 1.0, 2.5, 5.0]
+    lead_minutes: [6, 12, 18, 30, 48, 60, 90, 120]
+    fss_neighbourhood_radii_km: [6.0, 18.0, 36.0]
+
+events:
+  - id: stage4_dev_initiation_2026_06_18
+    split: stage4_dev_repair
+    class: positive_initiation
+    type_labels: [stage4_repair, summer, frontal_convection, initiation_candidate]
+    start_utc: "2026-06-18T16:00:00Z"
+    end_utc: "2026-06-19T02:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    paired_negative_id: stage4_dev_dry_favourable_2026_07_10
+    status: candidate_unvalidated
+    rationale: DEV repair candidate for warm-season initiation; must pass MRMS initiation mining and issue-time multimodal audit before use.
+  - id: stage4_dev_dissipation_2026_05_20
+    split: stage4_dev_repair
+    class: positive_precipitation
+    type_labels: [stage4_repair, spring, thunderstorms, dissipation_candidate]
+    start_utc: "2026-05-20T00:00:00Z"
+    end_utc: "2026-05-20T10:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 45.5]
+    paired_negative_id: stage4_dev_post_storm_dry_2026_05_21
+    status: candidate_unvalidated
+    rationale: DEV repair candidate for decay/cessation coverage; must be confirmed from radar objects.
+  - id: stage4_dev_dry_favourable_2026_07_10
+    split: stage4_dev_repair
+    class: hard_negative_candidate
+    match_to: stage4_dev_initiation_2026_06_18
+    type_labels: [stage4_repair, summer, favourable_environment, no_initiation_candidate]
+    start_utc: "2026-07-10T16:00:00Z"
+    end_utc: "2026-07-11T02:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    verification_bbox_wgs84: [-83.37500133221761, 43.62500000000226, -80.82500140508665, 46.17500000000175]
+    status: candidate_unvalidated
+    rationale: DEV hard-negative repair candidate; must remain dry/sparse-radar under the Stage 4 verifier.
+  - id: stage4_init_holdout_june21_2025_derecho
+    split: stage4_initiation_holdout
+    class: positive_initiation
+    type_labels: [stage4_final_holdout, summer, squall_line, pre_radar_initiation_candidate]
+    start_utc: "2025-06-21T18:00:00Z"
+    end_utc: "2025-06-22T04:00:00Z"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+    paired_negative_id: stage4_holdout_favourable_dry_2025_06_20
+    status: candidate_unvalidated
+    rationale: Fresh Stage 4 initiation-holdout candidate; do not inspect model performance until Stage 4 procedure is frozen.
+  - id: stage4_init_holdout_may20_2026_southwest_ontario
+    split: stage4_initiation_holdout
+    class: positive_initiation
+    type_labels: [stage4_final_holdout, spring, severe_convection, pre_radar_initiation_candidate]
+    start_utc: "2026-05-19T20:00:00Z"
+    end_utc: "2026-05-20T08:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -78.0, 44.5]
+    paired_negative_id:
+    status: candidate_unvalidated
+    rationale: Fresh Stage 4 initiation-holdout candidate; validate isolated initiation and radar dryness before use. Its preselected matched dry negative was rejected by radar and must not be used.
+  - id: stage4_init_holdout_july27_2026_southwest_ontario
+    split: stage4_initiation_holdout
+    class: positive_initiation
+    type_labels: [stage4_final_holdout, summer, unstable_airmass, pre_radar_initiation_candidate]
+    start_utc: "2026-07-27T15:00:00Z"
+    end_utc: "2026-07-28T03:00:00Z"
+    bbox_wgs84: [-84.8, 41.5, -77.0, 45.5]
+    paired_negative_id: stage4_holdout_favourable_dry_2026_07_26
+    status: candidate_unvalidated
+    rationale: Fresh Stage 4 initiation-holdout candidate; separate from the DEV repair tile selection before any model scoring.
+  - id: stage4_init_holdout_aug30_2026_eastern_ontario
+    split: stage4_initiation_holdout
+    class: positive_initiation
+    type_labels: [stage4_final_holdout, summer, scattered_thunderstorms, pre_radar_initiation_candidate]
+    start_utc: "2026-08-30T15:00:00Z"
+    end_utc: "2026-08-31T02:00:00Z"
+    bbox_wgs84: [-80.5, 43.0, -74.7, 46.6]
+    paired_negative_id: stage4_holdout_favourable_dry_2026_08_29
+    status: candidate_unvalidated
+    rationale: Fresh Stage 4 initiation-holdout candidate for eastern Ontario/National Capital-region coverage.
+  - id: stage4_init_holdout_sep02_2026_southern_ontario
+    split: stage4_initiation_holdout
+    class: positive_initiation
+    type_labels: [stage4_final_holdout, late_summer, severe_convection, pre_radar_initiation_candidate]
+    start_utc: "2026-09-02T14:00:00Z"
+    end_utc: "2026-09-03T03:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 45.5]
+    paired_negative_id: stage4_holdout_favourable_dry_2026_09_01
+    status: candidate_unvalidated
+    rationale: Fresh Stage 4 initiation-holdout candidate; likely valuable for hard false-alarm checks after validation.
+
+hard_negative_events:
+  - id: stage4_dev_favourable_dry_2026_06_17
+    match_to: stage4_dev_initiation_2026_06_18
+    split: stage4_dev_repair
+    class: hard_negative_candidate
+    type_labels: [stage4_repair, summer, favourable_environment, no_initiation_candidate]
+    start_utc: "2026-06-17T16:00:00Z"
+    end_utc: "2026-06-18T02:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 46.5]
+    status: rejected_radar_precipitation_too_extensive
+    rejection_reason: mean wet fraction 0.22085 and max-frame wet fraction 0.47135 exceed sparse-dry criteria.
+  - id: stage4_dev_post_storm_dry_2026_05_21
+    match_to: stage4_dev_dissipation_2026_05_20
+    split: stage4_dev_repair
+    class: hard_negative_candidate
+    type_labels: [stage4_repair, post_storm, no_initiation_candidate]
+    start_utc: "2026-05-21T00:00:00Z"
+    end_utc: "2026-05-21T10:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 45.5]
+    status: candidate_unvalidated
+  - id: stage4_holdout_favourable_dry_2025_06_20
+    match_to: stage4_init_holdout_june21_2025_derecho
+    split: stage4_initiation_holdout
+    class: hard_negative_candidate
+    type_labels: [stage4_final_holdout, favourable_environment, no_initiation_candidate]
+    start_utc: "2025-06-20T18:00:00Z"
+    end_utc: "2025-06-21T04:00:00Z"
+    bbox_wgs84: [-84.8, 41.5, -75.5, 46.5]
+    verification_bbox_wgs84: [-79.355, 43.955, -76.815, 46.495]
+    status: candidate_unvalidated
+  - id: stage4_holdout_favourable_dry_2026_05_18
+    match_to: stage4_init_holdout_may20_2026_southwest_ontario
+    split: stage4_initiation_holdout
+    class: hard_negative_candidate
+    type_labels: [stage4_final_holdout, favourable_environment, no_initiation_candidate]
+    start_utc: "2026-05-18T20:00:00Z"
+    end_utc: "2026-05-19T08:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -78.0, 44.5]
+    status: rejected_radar_precipitation_too_extensive
+    rejection_reason: mean wet fraction 0.09618 and max-frame wet fraction 0.22611 exceed sparse-dry criteria.
+  - id: stage4_holdout_favourable_dry_2026_07_26
+    match_to: stage4_init_holdout_july27_2026_southwest_ontario
+    split: stage4_initiation_holdout
+    class: hard_negative_candidate
+    type_labels: [stage4_final_holdout, favourable_environment, no_initiation_candidate]
+    start_utc: "2026-07-26T15:00:00Z"
+    end_utc: "2026-07-27T03:00:00Z"
+    bbox_wgs84: [-84.8, 41.5, -77.0, 45.5]
+    verification_bbox_wgs84: [-84.795, 42.955, -82.255, 45.495]
+    status: candidate_unvalidated
+  - id: stage4_holdout_favourable_dry_2026_08_29
+    match_to: stage4_init_holdout_aug30_2026_eastern_ontario
+    split: stage4_initiation_holdout
+    class: hard_negative_candidate
+    type_labels: [stage4_final_holdout, favourable_environment, no_initiation_candidate]
+    start_utc: "2026-08-29T15:00:00Z"
+    end_utc: "2026-08-30T02:00:00Z"
+    bbox_wgs84: [-80.5, 43.0, -74.7, 46.6]
+    verification_bbox_wgs84: [-77.25500150710332, 43.00500000000238, -74.70500157997236, 45.555000000001876]
+    status: candidate_unvalidated
+  - id: stage4_holdout_favourable_dry_2026_09_01
+    match_to: stage4_init_holdout_sep02_2026_southern_ontario
+    split: stage4_initiation_holdout
+    class: hard_negative_candidate
+    type_labels: [stage4_final_holdout, favourable_environment, no_initiation_candidate]
+    start_utc: "2026-09-01T14:00:00Z"
+    end_utc: "2026-09-02T03:00:00Z"
+    bbox_wgs84: [-84.5, 41.5, -76.0, 45.5]
+    verification_bbox_wgs84: [-82.255, 42.955, -79.715, 45.495]
+    status: candidate_unvalidated
