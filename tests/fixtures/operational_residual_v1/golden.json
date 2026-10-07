@@ -1,0 +1,36 @@
+{
+  "purpose": "software regression only; not model tuning",
+  "split": "new_dev",
+  "row_id": "cycle2_20201019__active__20201019T1254__11",
+  "input_sha256": "febe87339851126758c22216e388a8358e1accc58839c0a304ead1bf7aa8a6b4",
+  "output_array_sha256": "2f7269e47d8dbcdd6675cc6705ebb78a8ce0a4344710865ec01668ca88d11188",
+  "differences_from_research_path": {
+    "pysteps_max_abs": 0.0,
+    "probability_max_abs": 0.0,
+    "corrected_rate_max_abs": 0.0,
+    "wet_mask_different_pixels": 0
+  },
+  "detached_float16_cache_quantization_differences": {
+    "pysteps_max_abs": 0.0034160614013671875,
+    "motion_max_abs": 0.0001220703125
+  },
+  "probability_summary": {
+    "mean": 0.10106128454208374,
+    "maximum": 0.8623223304748535
+  },
+  "rate_summary_mm_h": {
+    "mean": 0.08284437656402588,
+    "maximum": 7.659300327301025
+  },
+  "cpu_benchmark": {
+    "pysteps": 15.905720699985977,
+    "neural": 0.23997450002934784,
+    "total": 16.145695200015325,
+    "wall": 16.151341999997385,
+    "python_tracemalloc_peak_mb": 66.78807353973389,
+    "tile_shape": [
+      128,
+      128
+    ]
+  }
+}

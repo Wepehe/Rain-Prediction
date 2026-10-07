@@ -1,0 +1,37 @@
+{
+  "bundle_version": "1.0.0",
+  "model_version": "cycle2-residual-v1",
+  "architecture": "PySTEPSResidualUNetV1",
+  "trainable_parameters": 3060440,
+  "checkpoint_epoch": 14,
+  "checkpoint_sha256": "b536ca16daaaf8904b9c326ed00c01169105d764c2072249092a9259ba9a22c5",
+  "normalization_sha256": "23dc3b31edad1247fc77abd4ec7d44688cdd79e21b3d0f832260130df36c192c",
+  "config_sha256": "13456f0e6a940f3a8a41f68e7c9e7f7efdf4eaf5e24273bcc96f5b967250495b",
+  "model_source_sha256": "2a84095e36009174ca662566b2158e8e9fb38e3e17fba280ceb8017e2f739ea2",
+  "operating_threshold": 0.35,
+  "rain_threshold_mm_h": 0.1,
+  "history_frames": 10,
+  "forecast_frames": 20,
+  "cadence_minutes": 6,
+  "tile_shape": [128, 128],
+  "resolution_km": 2,
+  "projection": "EPSG:3978",
+  "pysteps": {
+    "mode": "deterministic",
+    "motion": "Lucas-Kanade",
+    "motion_input_frames": 3,
+    "nowcast": "extrapolation",
+    "transform": "dB",
+    "zero_value_db": -15.0
+  },
+  "environment": {
+    "python": "3.12.13",
+    "torch": "2.14.0+cpu",
+    "pysteps": "1.21.5",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5"
+  },
+  "scientific_status": "FINAL VALIDATED — RESIDUAL V1 GENERALIZES",
+  "final_set_status": "CONSUMED_FINAL",
+  "post_final_retuning_permitted": false
+}

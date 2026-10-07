@@ -1,0 +1,22 @@
+{
+  "source_split": "new_train",
+  "dev_used": false,
+  "final_used": false,
+  "rate_log1p_mean": 0.27863315186335164,
+  "rate_log1p_std": 0.5220179386928178,
+  "motion_mean": [
+    2.266416269975869,
+    -0.9385412674718128
+  ],
+  "motion_std": [
+    2.086115265023477,
+    1.3836190346094122
+  ],
+  "rate_values": 1121202274,
+  "motion_values_per_channel": [
+    37404672,
+    37404672
+  ],
+  "training_rows": 2283,
+  "statistics_sha256": "f004bc5dff4365a8fb64c5de66823f9645129f7a7c8db1924b8434bfe5bdf8e9"
+}
