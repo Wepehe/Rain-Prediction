@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED=1 \
     STREAMLIT_SERVER_PORT=7860 \
     STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential curl libgl1 libglib2.0-0 \
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential curl libeccodes0 libgl1 libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir uv
 WORKDIR /app
